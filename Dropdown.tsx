@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { httpPatch } from 'lib/http';
 import DropdownItem from './DropdownItem';
 
-const Dropdown = ({ label, items }) => {
+const Dropdown = ({ label, key, items, userId }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [menuItems, setMenuItems] = useState(items);
 
@@ -10,18 +10,23 @@ const Dropdown = ({ label, items }) => {
     setIsOpen(!isOpen);
   };
 
-  // Function to handle syncing menu selection to the server
-  const syncMenuSelection = (key, value) => {
-    httpPatch('user', { [`menu-state-${key}`]: value });
-  };
+  // handle syncing menu selection to the server
+  useEffect(()=>{
+       httpPatch('user', { [`menu-state-${key}`]: isOpen })
+  }, [isOpen])
 
   // Function to toggle child dropdown menu
   const onToggleChildDropdown = (pos) => {
     setMenuItems(state => state.map((e,i) => ({
-		...e,
-		isOpen: pos == i ? true : false
+	    ...e,
+	   isOpen: pos == i ? true : false
 	})))
   };
+
+  //fetch synced user menu
+  useEffect(()=>{
+       httpGet(`users/${userId}`).then(d => { setIsOpen(user[`dropdown_${name}`]) });
+  }, [])
 
   return (
     <>
